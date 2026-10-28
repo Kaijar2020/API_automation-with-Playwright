@@ -1,0 +1,11 @@
+info:
+  name: Examinations
+  type: folder
+  seq: 6
+
+request:
+  auth: inherit
+
+docs:
+  content: Clinical examination note entries (read-only catalog). Used in prescription templates.
+  type: text/markdown

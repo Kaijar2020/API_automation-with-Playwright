@@ -1,0 +1,50 @@
+info:
+  name: Update Template
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/prescription/Templates/{{templateId}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "shortcut": "DM2-V2",
+        "name": "Type 2 Diabetes Standard Treatment (v2)",
+        "templateType": "treatment",
+        "followUp": "6 weeks",
+        "chiefComplaints": [],
+        "examinations": [],
+        "advices": [],
+        "drugs": [],
+        "tests": []
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Update Template
+
+  ### Path Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | id | string (uuid) | **Yes** | Template unique identifier |
+
+  ### Request Body — `UpdateTemplateRequest`
+  Same child arrays as Create but without `doctorId`.
+
+  ### Response — 200 OK
+  Returns `TemplateDetailDto`.

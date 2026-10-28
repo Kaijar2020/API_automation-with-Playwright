@@ -1,0 +1,51 @@
+info:
+  name: Get All Templates
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/Templates?doctorId={{doctorId}}&templateType=global&page=1&pageSize=20"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  params:
+    - name: doctorId
+      value: "{{doctorId}}"
+      type: query
+      description: Filter by doctor UUID (optional)
+    - name: templateType
+      value: global
+      type: query
+      description: "Filter by type: global | treatment | advice | test (optional)"
+    - name: page
+      value: "1"
+      type: query
+      description: "Page number (int32, default: 1)"
+    - name: pageSize
+      value: "20"
+      type: query
+      description: "Items per page (int32, default: 20)"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Get All Templates
+
+  ### Query Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | doctorId | string (uuid) | No | Filter by doctor |
+  | templateType | string (enum) | No | `global` \| `treatment` \| `advice` \| `test` |
+  | page | integer (int32) | No | Page number (default: 1) |
+  | pageSize | integer (int32) | No | Items per page (default: 20) |
+
+  ### Response — 200 OK
+  Returns `TemplateDtoPagedResult` (summary list, no child items).

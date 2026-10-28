@@ -1,0 +1,33 @@
+info:
+  name: Get Prescriptions by Doctor
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/Prescriptions/doctor/{{doctorId}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Get Prescriptions by Doctor
+
+  Returns all prescriptions issued by a given doctor.
+
+  ### Path Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | doctorId | string (uuid) | **Yes** | Doctor unique identifier |
+
+  ### Response — 200 OK
+  Returns array of `PrescriptionDetailDto`.

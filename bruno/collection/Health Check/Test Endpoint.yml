@@ -1,0 +1,23 @@
+info:
+  name: Test Endpoint
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/Test"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Health Check
+
+  Simple liveness endpoint. Returns 200 OK if the service is running.
+
+  ### Response — 200 OK
+  No body.

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@api/*": ["./src/api/*"],
+      "@fixtures": ["./src/fixtures/index.ts"],
+      "@openapi/*": ["./src/openapi/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@config": ["./config/env.ts"],
+      "@data/*": ["./src/data/*"]
+    }
+  },
+  "include": ["config", "src", "tests", "playwright.config.ts"]
+}

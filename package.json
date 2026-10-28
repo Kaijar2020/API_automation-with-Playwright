@@ -1,0 +1,37 @@
+{
+  "name": "bh_api_end",
+  "version": "1.0.0",
+  "description": "Niramoy Prescription API automation with Playwright, driven by Swagger",
+  "private": true,
+  "scripts": {
+    "test": "npm run allure:clean && playwright test",
+    "test:staging": "cross-env ENV=staging playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:crud": "playwright test --grep @crud",
+    "test:readonly": "playwright test --grep-invert @crud",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report reports/html",
+    "typecheck": "tsc --noEmit",
+    "allure:clean": "node -e \"for (const d of ['allure-results','allure-report']) require('fs').rmSync(d,{recursive:true,force:true})\"",
+    "allure:generate": "node -e \"require('fs').rmSync('allure-report',{recursive:true,force:true})\" && allure generate allure-results",
+    "allure:open": "allure open allure-report",
+    "allure:report": "npm run allure:generate && allure open allure-report",
+    "test:allure": "node scripts/test-allure.mjs",
+    "test:perf": "cross-env PERF=1 playwright test --project=performance --workers=1",
+    "cleanup:sweep": "cross-env SWEEP=1 playwright test --project=cleanup --workers=1",
+    "cleanup:sweep:apply": "cross-env SWEEP=1 SWEEP_APPLY=true playwright test --project=cleanup --workers=1"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^20.19.43",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "allure": "^3.18.0",
+    "allure-js-commons": "^3.12.2",
+    "allure-playwright": "^3.12.2",
+    "cross-env": "^10.1.0",
+    "dotenv": "^18.0.3",
+    "typescript": "^7.0.2"
+  }
+}

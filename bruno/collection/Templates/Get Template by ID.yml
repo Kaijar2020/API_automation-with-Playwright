@@ -1,0 +1,33 @@
+info:
+  name: Get Template by ID
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/Templates/{{templateId}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Get Template by ID
+
+  Returns full template detail including all nested items.
+
+  ### Path Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | id | string (uuid) | **Yes** | Template unique identifier |
+
+  ### Response — 200 OK
+  Returns `TemplateDetailDto` with `chiefComplaints[]`, `examinations[]`, `advices[]`, `drugs[]`, `tests[]`.

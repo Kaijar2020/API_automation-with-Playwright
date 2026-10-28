@@ -1,0 +1,38 @@
+info:
+  name: Semantic Search Chief Complaints
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/ChiefComplaints/semantic-search?searchTerm=head pain"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  params:
+    - name: searchTerm
+      value: head pain
+      type: query
+      description: Natural language query for semantic search (string)
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Semantic Search Chief Complaints (AI-Powered)
+
+  Uses AI/vector similarity to find semantically related chief complaint terms. Useful for natural language queries that don't match exact keywords.
+
+  ### Query Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | searchTerm | string | No | Natural language query |
+
+  ### Response — 200 OK
+  Returns array of `ChiefComplaintSearchDto` (same structure as keyword search).

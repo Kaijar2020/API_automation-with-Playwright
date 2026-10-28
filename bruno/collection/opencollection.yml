@@ -1,0 +1,71 @@
+opencollection: 1.0.0
+
+info:
+  name: Prescription API
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: bearer
+    token: "{{stageToken}}"
+  variables:
+    - name: baseUrl
+      value: "{{baseUrl}}"
+
+docs:
+  content: |-
+    # Prescription Microservice API
+
+    Independent and reusable prescription management service.
+
+    ## Base URL
+    `{{baseUrl}}/api/v1/prescription`
+
+    ## Authentication
+    Set your auth token in the `{{authToken}}` environment variable.
+
+    ## Modules
+    - **Advices** — Manage medical advice entries
+    - **ChiefComplaints** — Search chief complaint terms (SNOMED-based)
+    - **Diagnosis** — Manage diagnosis entries
+    - **Drugs** — Search drug catalog
+    - **Examinations** — Browse clinical examination notes
+    - **MedicalTests** — Manage lab/medical tests
+    - **Patients** — Retrieve patient prescription history
+    - **Prescriptions** — Full prescription lifecycle (create, update, status, PDF)
+    - **Templates** — Doctor-specific prescription templates
+
+    ## Pagination
+    Most list endpoints support `page` (default: 1) and `pageSize` (default: 10–20).
+
+    ## Common Status Codes
+    | Code | Meaning |
+    |------|---------|
+    | 200  | Success |
+    | 201  | Created |
+    | 204  | No Content (deleted) |
+    | 400  | Bad Request — validation error |
+    | 404  | Not Found |
+
+    ## Prescription Status Enum
+    `draft` | `active` | `completed` | `cancelled` | `expired`
+
+    ## Template Type Enum
+    `global` | `treatment` | `advice` | `test`
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

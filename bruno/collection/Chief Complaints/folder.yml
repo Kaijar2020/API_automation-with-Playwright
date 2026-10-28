@@ -1,0 +1,11 @@
+info:
+  name: Chief Complaints
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit
+
+docs:
+  content: "Search SNOMED-coded chief complaint terms for use in prescriptions. Two modes: keyword search and semantic/AI-powered search."
+  type: text/markdown

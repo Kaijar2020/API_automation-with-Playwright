@@ -1,0 +1,58 @@
+info:
+  name: Search Drugs
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/Drugs/search?searchTerm=napa&page=1&pageSize=10"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  params:
+    - name: searchTerm
+      value: napa
+      type: query
+      description: Brand name, generic name, or group keyword (string)
+    - name: page
+      value: "1"
+      type: query
+      description: "Page number (int32, default: 1)"
+    - name: pageSize
+      value: "10"
+      type: query
+      description: "Items per page (int32, default: 10)"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Search Drugs
+
+  Search the drug catalog by brand name, generic name, or group.
+
+  ### Response — 200 OK
+  Returns `DrugSearchDtoPagedResult`.
+
+  ### DrugSearchDto Fields
+  | Field | Type | Description |
+  |-------|------|-------------|
+  | drugId | string (uuid) | Unique drug ID |
+  | groupName | string | Pharmacological group |
+  | genericName | string | INN/generic name |
+  | doseEng | string | Dose info in English |
+  | doseBng | string | Dose info in Bengali |
+  | brandName | string | Brand/trade name |
+  | strength | string | Strength (e.g. 500mg) |
+  | formulationShortName | string | Short form (e.g. Tab) |
+  | formulationFullName | string | Full form (e.g. Tablet) |
+  | companyName | string | Manufacturer |
+  | fullName | string | Complete display name |
+  | drugDose | string | Full dosage string |
+  | shortDose | string | Short dosage display |

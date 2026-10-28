@@ -1,0 +1,61 @@
+stages:
+  - test
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+    - allure-history/   # keeps Allure trend charts between pipelines
+    - .cleanup/         # test records a pipeline could not delete are retried by the next one
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  ENV: "staging"
+  BASE_URL: "https://staging-niramoy.celloscope.net"
+  AUTH_TOKEN_URL: "https://staging-auth-niramoy.celloscope.net/realms/niramoy/protocol/openid-connect/token"
+  AUTH_CLIENT_ID: "niramoy-web"
+  SWAGGER_FILE: "swagger/prescription.json"
+  # Define as masked CI/CD variables in GitLab: AUTH_USERNAME, AUTH_PASSWORD, DOCTOR_ID, PATIENT_ID
+  # PRESCRIPTION_WRITES: "true" runs the prescription lifecycle (leaves one undeletable [AUTO] prescription per pipeline)
+
+api_tests:
+  stage: test
+  image: node:20
+  script:
+    - npm ci
+    - npx playwright test || TEST_EXIT=$?
+    - npx allure generate allure-results
+    - exit ${TEST_EXIT:-0}
+  artifacts:
+    when: always
+    expose_as: "Allure report"
+    paths:
+      - allure-report/
+      - reports/
+    reports:
+      junit: reports/junit.xml
+    expire_in: 14 days
+
+# Performance suite: run manually or from a pipeline schedule (not on every push).
+api_performance:
+  stage: test
+  image: node:20
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: manual
+      allow_failure: true
+  variables:
+    PERF: "1"
+  script:
+    - npm ci
+    - npx playwright test --project=performance --workers=1 || TEST_EXIT=$?
+    - npx allure generate allure-results
+    - exit ${TEST_EXIT:-0}
+  artifacts:
+    when: always
+    expose_as: "Performance report"
+    paths:
+      - reports/performance.md
+      - reports/performance.json
+      - allure-report/
+    expire_in: 30 days

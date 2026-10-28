@@ -1,0 +1,54 @@
+info:
+  name: Search Chief Complaints
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/ChiefComplaints/search?searchTerm=Headche"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  params:
+    - name: searchTerm
+      value: Headche
+      type: query
+      description: Keyword to search (string)
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: |-
+  ## Search Chief Complaints (Keyword)
+
+  Keyword-based search for chief complaint terms.
+
+  ### Query Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | searchTerm | string | No | Keyword to search |
+
+  ### Response — 200 OK
+  Returns array of `ChiefComplaintSearchDto`:
+  ```json
+  [
+    {
+      "conceptId": 25064002,
+      "term": "Headache",
+      "tag": "Finding"
+    }
+  ]
+  ```
+
+  | Field | Type | Description |
+  |-------|------|-------------|
+  | conceptId | integer (int64) | SNOMED CT concept ID |
+  | term | string | Display term |
+  | tag | string | SNOMED semantic tag |

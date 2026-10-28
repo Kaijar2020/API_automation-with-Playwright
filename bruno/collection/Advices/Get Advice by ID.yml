@@ -1,0 +1,35 @@
+info:
+  name: Get Advice by ID
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/Advices/{{adviceId}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: |-
+  ## Get Advice by ID
+
+  ### Path Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | id | string (uuid) | **Yes** | Unique identifier of the advice |
+
+  ### Response — 200 OK
+  Returns `AdviceDto`.
+
+  ### Response — 404 Not Found
+  Returns `ProblemDetails`.

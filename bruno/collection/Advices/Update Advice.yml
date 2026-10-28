@@ -1,0 +1,48 @@
+info:
+  name: Update Advice
+  type: http
+  seq: 6
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/prescription/Advices/{{adviceId}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Updated Advice Name",
+        "descriptionEn": "Updated description in English",
+        "descriptionBn": "আপডেট করা বিবরণ"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: |-
+  ## Update Advice
+
+  ### Path Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | id | string (uuid) | **Yes** | Unique identifier of the advice |
+
+  ### Request Body — `UpdateAdviceRequest`
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | name | string | No | Updated name |
+  | descriptionEn | string | No | Updated English description |
+  | descriptionBn | string | No | Updated Bengali description |
+
+  ### Response — 200 OK / 404 Not Found

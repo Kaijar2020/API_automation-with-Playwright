@@ -1,0 +1,35 @@
+info:
+  name: Get All Medical Tests
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/MedicalTests?page=1&pageSize=20"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  params:
+    - name: page
+      value: "1"
+      type: query
+      description: "Page number (int32, default: 1)"
+    - name: pageSize
+      value: "20"
+      type: query
+      description: "Items per page (int32, default: 20)"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Get All Medical Tests
+
+  ### Response — 200 OK
+  Returns `MedicalTestSearchDtoPagedResult`.

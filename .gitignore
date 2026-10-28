@@ -1,0 +1,19 @@
+node_modules/
+.auth/
+reports/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+
+# Bruno export contains credentials / tokens
+bruno/*.zip
+bruno/*.json
+bruno/collection/environments/
+bruno/collection/auth copy/
+allure-results/
+allure-report/
+allure-history/
+# pending test-data deletes (src/cleanup/ledger.ts)
+.cleanup/

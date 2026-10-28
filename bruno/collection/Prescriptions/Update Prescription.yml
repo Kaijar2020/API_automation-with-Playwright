@@ -1,0 +1,61 @@
+info:
+  name: Update Prescription
+  type: http
+  seq: 8
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/prescription/Prescriptions/prescriptionId/{{prescriptionId}}/doctor/{{doctorId}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "visitType": "OPD",
+        "diagnosis": "Type 2 Diabetes Mellitus - Updated",
+        "clinicalFindings": "BP 125/80 mmHg, FBS 10.5 mmol/L",
+        "notes": "Patient improving",
+        "height": "170",
+        "heightUnit": "cm",
+        "weight": "73",
+        "weightUnit": "kg",
+        "bpSystolic": "125",
+        "bpDiastolic": "80",
+        "pulseRate": "76",
+        "followUpDate": "2025-06-01T00:00:00Z",
+        "followUpInstructions": "Repeat HbA1c after 3 months",
+        "referredBy": null,
+        "chiefComplaints": [],
+        "drugs": [],
+        "advices": [],
+        "investigations": []
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Update Prescription
+
+  Updates an existing prescription. Doctor ID is required in the path for authorization scoping.
+
+  ### Path Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | id | string (uuid) | **Yes** | Prescription unique identifier |
+  | doctorId | string (uuid) | **Yes** | Doctor unique identifier |
+
+  ### Request Body — `UpdatePrescriptionRequest`
+  Same fields as `CreatePrescriptionRequest` except `patientId`, `doctorId`, and `isDraft` are not included.
+
+  ### Response — 200 OK / 404 Not Found

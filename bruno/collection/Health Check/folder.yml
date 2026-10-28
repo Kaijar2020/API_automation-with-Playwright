@@ -1,0 +1,11 @@
+info:
+  name: Health Check
+  type: folder
+  seq: 11
+
+request:
+  auth: inherit
+
+docs:
+  content: Service liveness check.
+  type: text/markdown

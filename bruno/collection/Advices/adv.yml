@@ -1,0 +1,26 @@
+info:
+  name: adv
+  type: http
+  seq: 1
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/v1/prescription/Advices?page=1&pageSize=20"
+  headers:
+    - name: accept
+      value: application/json
+  params:
+    - name: page
+      value: "1"
+      type: query
+    - name: pageSize
+      value: "20"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

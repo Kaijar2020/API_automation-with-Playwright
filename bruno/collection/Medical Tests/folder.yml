@@ -1,0 +1,11 @@
+info:
+  name: Medical Tests
+  type: folder
+  seq: 7
+
+request:
+  auth: inherit
+
+docs:
+  content: Full CRUD for lab/medical test entries (CBC, LFT, etc.) including abbreviation, normal range, and cost.
+  type: text/markdown

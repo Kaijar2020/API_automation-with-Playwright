@@ -1,0 +1,28 @@
+info:
+  name: Delete Template
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/prescription/Templates/{{templateId}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Delete Template
+
+  ### Path Parameters
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | id | string (uuid) | **Yes** | Template unique identifier |
+
+  ### Response — 204 No Content

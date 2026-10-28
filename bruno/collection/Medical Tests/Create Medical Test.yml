@@ -1,0 +1,49 @@
+info:
+  name: Create Medical Test
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/prescription/MedicalTests"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "abbreviation": "HbA1c",
+        "fullName": "Glycated Hemoglobin",
+        "defaultValue": "--",
+        "normalRange": "< 5.7%",
+        "cost": 800.00
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Create Medical Test
+
+  ### Request Body — `CreateMedicalTestRequest`
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | abbreviation | string | No | Short abbreviation (e.g. CBC, HbA1c) |
+  | fullName | string | No | Complete test name |
+  | defaultValue | string | No | Default result placeholder |
+  | normalRange | string | No | Reference/normal range text |
+  | cost | number (double) | No | Test cost in local currency |
+
+  ### Response — 201 Created
+  Returns `MedicalTestDto`.
+
+  ### Response — 400 Bad Request

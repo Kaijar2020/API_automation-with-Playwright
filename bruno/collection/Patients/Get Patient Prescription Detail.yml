@@ -1,0 +1,50 @@
+info:
+  name: Get Patient Prescription Detail
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/prescription/Patients/get-prescription-detail?id={{patientId}}&doctorId={{doctorId}}&visitNumber=1"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Accept
+      value: application/json
+  params:
+    - name: id
+      value: "{{patientId}}"
+      type: query
+      description: Patient unique identifier (uuid)
+    - name: doctorId
+      value: "{{doctorId}}"
+      type: query
+      description: Doctor unique identifier (uuid)
+    - name: visitNumber
+      value: "1"
+      type: query
+      description: "Visit number to retrieve (int32, default: 1)"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Get Patient Prescription Detail
+
+  Retrieves prescription history for a specific patient scoped to a doctor and visit number.
+
+  ### Query Parameters
+  | Parameter | Type | Required | Default | Description |
+  |-----------|------|----------|---------|-------------|
+  | id | string (uuid) | No | — | Patient ID |
+  | doctorId | string (uuid) | No | — | Doctor ID |
+  | visitNumber | integer (int32) | No | 1 | Visit number |
+
+  ### Response — 200 OK
+  Returns `PrescriptionDetailDtoPagedResult`.
+
+  ### Response — 404 Not Found

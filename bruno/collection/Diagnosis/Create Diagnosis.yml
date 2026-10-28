@@ -1,0 +1,51 @@
+info:
+  name: Create Diagnosis
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/prescription/Diagnosis"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "autoCompleteText": "Type 2 Diabetes Mellitus",
+        "autoCompleteTextBn": "টাইপ ২ ডায়াবেটিস মেলিটাস"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Create Diagnosis
+
+  ### Request Body — `CreateDiagnosisRequest`
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | autoCompleteText | string | No | Diagnosis text in English (used for autocomplete) |
+  | autoCompleteTextBn | string | No | Diagnosis text in Bengali |
+
+  ### Response — 201 Created
+  Returns `DiagnosisDto`:
+  ```json
+  {
+    "id": "uuid",
+    "autoCompleteText": "string",
+    "autoCompleteTextBn": "string",
+    "isActive": true
+  }
+  ```
+
+  ### Response — 400 Bad Request

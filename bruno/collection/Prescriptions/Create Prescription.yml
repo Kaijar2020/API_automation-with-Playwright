@@ -1,0 +1,173 @@
+info:
+  name: Create Prescription
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/prescription/Prescriptions"
+  headers:
+    - name: Authorization
+      value: Bearer {{authToken}}
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "patientId": "{{patientId}}",
+        "doctorId": "{{doctorId}}",
+        "isDraft": false,
+        "visitType": "OPD",
+        "diagnosis": "Type 2 Diabetes Mellitus",
+        "clinicalFindings": "BP 130/80 mmHg, FBS 12.5 mmol/L",
+        "notes": "Patient advised to monitor blood sugar daily",
+        "height": "170",
+        "heightUnit": "cm",
+        "weight": "75",
+        "weightUnit": "kg",
+        "bpSystolic": "130",
+        "bpDiastolic": "80",
+        "pulseRate": "78",
+        "followUpDate": "2025-05-01T00:00:00Z",
+        "followUpInstructions": "Repeat FBS after 1 month",
+        "referredBy": "Dr. Rahman",
+        "chiefComplaints": [
+          {
+            "id": null,
+            "conceptId": 73211009,
+            "term": "Diabetes mellitus",
+            "aiSuggestedTerm": null,
+            "isVerified": true,
+            "isCurrent": true,
+            "remarks": "Since 2 years"
+          }
+        ],
+        "drugs": [
+          {
+            "id": null,
+            "drugName": "Metformin",
+            "drugId": null,
+            "genericName": "Metformin HCl",
+            "form": "Tablet",
+            "strength": "500mg",
+            "dosageInstructions": "১+০+১",
+            "dosageInstructionsEnglish": "1+0+1",
+            "duration": "30 days",
+            "instructions": "After meal",
+            "sortOrder": 1
+          }
+        ],
+        "advices": [
+          {
+            "id": null,
+            "description": "Avoid sugar and sweet drinks",
+            "adviceId": null,
+            "sortOrder": 1
+          }
+        ],
+        "investigations": [
+          {
+            "id": null,
+            "name": "HbA1c",
+            "testId": null,
+            "abbreviation": "HbA1c",
+            "instructions": "Fasting",
+            "isUrgent": false,
+            "sortOrder": 1,
+            "testResult": null,
+            "isNormal": null,
+            "resultNote": null
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  ## Create Prescription
+
+  Creates a new prescription for a patient.
+
+  ### Request Body — `CreatePrescriptionRequest`
+
+  #### Top-level Fields
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | patientId | string (uuid) | **Yes** | Patient unique identifier |
+  | doctorId | string (uuid) | **Yes** | Doctor unique identifier |
+  | isDraft | boolean | **Yes** | Save as draft (true) or finalize (false) |
+  | visitType | string | No | e.g. OPD, IPD, Teleconsult |
+  | diagnosis | string | No | Free-text diagnosis |
+  | clinicalFindings | string | No | Clinical notes/findings |
+  | notes | string | No | Additional prescription notes |
+  | height | string | No | Patient height value |
+  | heightUnit | string | No | cm or ft |
+  | weight | string | No | Patient weight value |
+  | weightUnit | string | No | kg or lb |
+  | bpSystolic | string | No | Systolic BP reading |
+  | bpDiastolic | string | No | Diastolic BP reading |
+  | pulseRate | string | No | Pulse rate (bpm) |
+  | followUpDate | string (date-time) | No | ISO 8601 follow-up date |
+  | followUpInstructions | string | No | Instructions for follow-up |
+  | referredBy | string | No | Referring doctor name |
+
+  #### chiefComplaints[] — `CreatePrescriptionChiefComplaintItem`
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | id | string (uuid) | No | Existing item ID (for updates) |
+  | conceptId | integer (int64) | No | SNOMED CT concept ID |
+  | term | string | No | Complaint term text |
+  | aiSuggestedTerm | string | No | AI suggested alternative term |
+  | isVerified | boolean | **Yes** | Whether term is verified |
+  | isCurrent | boolean | **Yes** | Whether complaint is current |
+  | remarks | string | No | Duration/details |
+
+  #### drugs[] — `CreatePrescriptionDrugItem`
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | id | string (uuid) | No | Existing item ID |
+  | drugName | string | No | Display drug name |
+  | drugId | string (uuid) | No | Link to drug catalog |
+  | genericName | string | No | INN generic name |
+  | form | string | No | Tablet/Syrup/Capsule |
+  | strength | string | No | Strength (e.g. 500mg) |
+  | dosageInstructions | string | No | Bengali dosage (e.g. ১+০+১) |
+  | dosageInstructionsEnglish | string | No | English dosage |
+  | duration | string | No | Treatment duration |
+  | instructions | string | No | Special instructions |
+  | sortOrder | integer (int32) | **Yes** | Display order |
+
+  #### advices[] — `CreatePrescriptionAdviceItem`
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | id | string (uuid) | No | Existing item ID |
+  | description | string | No | Custom advice text |
+  | adviceId | string (uuid) | No | Link to advice catalog |
+  | sortOrder | integer (int32) | **Yes** | Display order |
+
+  #### investigations[] — `CreatePrescriptionInvestigationItem`
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | id | string (uuid) | No | Existing item ID |
+  | name | string | No | Test name |
+  | testId | string (uuid) | No | Link to medical tests catalog |
+  | abbreviation | string | No | Short name |
+  | instructions | string | No | Sample collection instructions |
+  | isUrgent | boolean | **Yes** | Mark as urgent |
+  | sortOrder | integer (int32) | **Yes** | Display order |
+  | testResult | string | No | Result value |
+  | isNormal | string | No | Normal/Abnormal indicator |
+  | resultNote | string | No | Interpretation note |
+
+  ### Response — 201 Created
+  Returns `PrescriptionDetailDto`.
+
+  ### Response — 400 Bad Request
