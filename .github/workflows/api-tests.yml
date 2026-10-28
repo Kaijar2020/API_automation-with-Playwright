@@ -59,6 +59,19 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Check credentials
+        run: |
+          missing=""
+          [ -z "$AUTH_USERNAME" ] && missing="$missing AUTH_USERNAME"
+          [ -z "$AUTH_PASSWORD" ] && missing="$missing AUTH_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secret(s):$missing. Add them in Settings → Secrets and variables → Actions → Secrets (Repository secrets)."
+            exit 1
+          fi
+          [ -z "$DOCTOR_ID" ] && echo "::warning::Variable DOCTOR_ID is not set; doctor tests will be skipped."
+          [ -z "$PATIENT_ID" ] && echo "::warning::Variable PATIENT_ID is not set; patient tests will be skipped."
+          echo "Credentials present."
+
       # Test records a previous run could not delete are retried by global setup.
       - name: Restore cleanup ledger
         uses: actions/cache/restore@v4
@@ -80,18 +93,18 @@ jobs:
         continue-on-error: true
 
       - name: Generate Allure report
-        if: always()
+        if: always() && hashFiles('allure-results/**') != ''
         run: npx allure generate allure-results
 
       - name: Save cleanup ledger
-        if: always()
+        if: always() && hashFiles('.cleanup/**') != ''
         uses: actions/cache/save@v4
         with:
           path: .cleanup/
           key: cleanup-ledger-${{ github.ref_name }}-${{ github.run_id }}
 
       - name: Save Allure history
-        if: always()
+        if: always() && hashFiles('allure-history/**') != ''
         uses: actions/cache/save@v4
         with:
           path: allure-history/
@@ -113,7 +126,7 @@ jobs:
           retention-days: 14
 
       - name: Fail if tests failed
-        if: steps.tests.outcome == 'failure'
+        if: always() && steps.tests.outcome == 'failure'
         run: exit 1
 
   performance:
@@ -139,7 +152,7 @@ jobs:
         continue-on-error: true
 
       - name: Generate Allure report
-        if: always()
+        if: always() && hashFiles('allure-results/**') != ''
         run: npx allure generate allure-results
 
       - name: Job summary
@@ -159,5 +172,5 @@ jobs:
           retention-days: 30
 
       - name: Fail if tests failed
-        if: steps.tests.outcome == 'failure'
+        if: always() && steps.tests.outcome == 'failure'
         run: exit 1
