@@ -82,6 +82,20 @@ Every run clears `allure-results/` first (any command), so the report never mixe
 
 Note: `--reporter=...` on the command line replaces every configured reporter (including Allure); run plain `npx playwright test` to get Allure results.
 
+## GitHub Actions
+[.github/workflows/api-tests.yml](.github/workflows/api-tests.yml) runs on every push / PR to `main`, nightly (02:00 UTC) and manually (Actions → API tests → Run workflow, pick `functional` or `performance`).
+- **Functional job**: typecheck, `npx playwright test`, Allure report; `allure-report/` + `reports/` uploaded as the `api-test-reports` artifact, `reports/cleanup.md` shown in the run summary.
+- **Performance job**: nightly or manual only; `performance-reports` artifact.
+- `.cleanup/` (pending deletes) and `allure-history/` are carried between runs with the Actions cache.
+
+Configure in repo **Settings → Secrets and variables → Actions**:
+
+| Kind | Name | |
+|---|---|---|
+| Secret | `AUTH_USERNAME`, `AUTH_PASSWORD` | Keycloak test user (required) |
+| Variable | `DOCTOR_ID`, `PATIENT_ID` | staging UUIDs; doctor/patient tests skip when unset |
+| Variable | `PRESCRIPTION_WRITES` | `true` runs the prescription lifecycle (leaves one undeletable `[AUTO]` prescription per run); default `false` |
+
 ## Structure
 ```
 tests/

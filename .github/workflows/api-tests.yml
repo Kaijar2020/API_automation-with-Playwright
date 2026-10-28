@@ -1,0 +1,163 @@
+name: API tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Which suite to run
+        type: choice
+        options: [functional, performance]
+        default: functional
+  schedule:
+    - cron: '0 2 * * *' # nightly (02:00 UTC): functional + performance
+
+# One run per branch at a time; a newer push cancels the older run.
+concurrency:
+  group: api-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  ENV: staging
+  BASE_URL: https://staging-niramoy.celloscope.net
+  API_PREFIX: /api/v1/prescription
+  AUTH_TOKEN_URL: https://staging-auth-niramoy.celloscope.net/realms/niramoy/protocol/openid-connect/token
+  AUTH_CLIENT_ID: niramoy-web
+  SWAGGER_FILE: swagger/prescription.json
+  # Settings → Secrets and variables → Actions
+  #   secrets:   AUTH_USERNAME, AUTH_PASSWORD
+  #   variables: DOCTOR_ID, PATIENT_ID, PRESCRIPTION_WRITES (optional)
+  AUTH_USERNAME: ${{ secrets.AUTH_USERNAME }}
+  AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
+  DOCTOR_ID: ${{ vars.DOCTOR_ID }}
+  PATIENT_ID: ${{ vars.PATIENT_ID }}
+  # "true" runs the prescription lifecycle, which leaves one undeletable [AUTO] prescription per run.
+  PRESCRIPTION_WRITES: ${{ vars.PRESCRIPTION_WRITES || 'false' }}
+
+jobs:
+  api-tests:
+    name: Functional API tests
+    if: github.event_name != 'workflow_dispatch' || inputs.suite == 'functional'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Test records a previous run could not delete are retried by global setup.
+      - name: Restore cleanup ledger
+        uses: actions/cache/restore@v4
+        with:
+          path: .cleanup/
+          key: cleanup-ledger-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: cleanup-ledger-${{ github.ref_name }}-
+
+      - name: Restore Allure history
+        uses: actions/cache/restore@v4
+        with:
+          path: allure-history/
+          key: allure-history-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: allure-history-${{ github.ref_name }}-
+
+      - name: Run Playwright tests
+        id: tests
+        run: npx playwright test
+        continue-on-error: true
+
+      - name: Generate Allure report
+        if: always()
+        run: npx allure generate allure-results
+
+      - name: Save cleanup ledger
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .cleanup/
+          key: cleanup-ledger-${{ github.ref_name }}-${{ github.run_id }}
+
+      - name: Save Allure history
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: allure-history/
+          key: allure-history-${{ github.ref_name }}-${{ github.run_id }}
+
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f reports/cleanup.md ]; then cat reports/cleanup.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-reports
+          path: |
+            allure-report/
+            reports/
+          retention-days: 14
+
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
+
+  performance:
+    name: Performance suite
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.suite == 'performance')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PERF: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run performance suite
+        id: tests
+        run: npx playwright test --project=performance --workers=1
+        continue-on-error: true
+
+      - name: Generate Allure report
+        if: always()
+        run: npx allure generate allure-results
+
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f reports/performance.md ]; then cat reports/performance.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-reports
+          path: |
+            reports/performance.md
+            reports/performance.json
+            allure-report/
+          retention-days: 30
+
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
