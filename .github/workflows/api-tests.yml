@@ -12,8 +12,6 @@ on:
         type: choice
         options: [functional, performance]
         default: functional
-  schedule:
-    - cron: '0 2 * * *' # nightly (02:00 UTC): functional + performance
 
 # One run per branch at a time; a newer push cancels the older run.
 concurrency:
@@ -131,7 +129,7 @@ jobs:
 
   performance:
     name: Performance suite
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.suite == 'performance')
+    if: github.event_name == 'workflow_dispatch' && inputs.suite == 'performance'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
