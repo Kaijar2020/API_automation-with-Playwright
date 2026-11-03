@@ -16,7 +16,7 @@ variables:
   AUTH_CLIENT_ID: "niramoy-web"
   SWAGGER_FILE: "swagger/prescription.json"
   # Define as masked CI/CD variables in GitLab: AUTH_USERNAME, AUTH_PASSWORD, DOCTOR_ID, PATIENT_ID
-  # PRESCRIPTION_WRITES: "true" runs the prescription lifecycle (leaves one undeletable [AUTO] prescription per pipeline)
+  # Every pipeline creates one undeletable [AUTO] prescription (lifecycle); PRESCRIPTION_WRITES: "false" turns it off
 
 api_tests:
   stage: test

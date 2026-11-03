@@ -66,18 +66,18 @@ const updateForUnknownPrescription = (refs: PrescriptionCatalogRefs) => prescrip
 
 // Swagger tag: Prescriptions
 // The API has no single-prescription delete, so the prescription created here stays in the database.
-// To keep that to a minimum: opt-in (PRESCRIPTION_WRITES=true), exactly one prescription per run (one test,
+// Every run creates one on purpose (PRESCRIPTION_WRITES=false skips it): exactly one prescription per run (one test,
 // no retries), notes start with "[AUTO]", and its id is listed in reports/cleanup.md for the backend team.
 // Every create sends every field (real catalog links, two medicines); negative tests drop only the field they test.
 // Never use DELETE /Prescriptions/doctor/{doctorId}/hard-delete: it wipes every prescription of the doctor (blocked in ApiClient).
 
 test.describe('Prescriptions - lifecycle @crud', () => {
-  test.skip(!env.prescriptionWrites, 'Creates a prescription that cannot be deleted: set PRESCRIPTION_WRITES=true to run it');
+  test.skip(!env.prescriptionWrites, 'PRESCRIPTION_WRITES=false: prescription lifecycle turned off');
   test.skip(!doctorId || !patientId, NEED_PATIENT);
   // A retry would create a second undeletable prescription.
   test.describe.configure({ retries: 0 });
 
-  test('create, read, render, update and complete a prescription', async ({ prescriptions, diagnosis, chiefComplaints, medicines, advices, investigations, formulationConfigs }) => {
+  test('create (AI chief complaints), read, render and complete a prescription', async ({ prescriptions, diagnosis, chiefComplaints, medicines, advices, investigations, formulationConfigs }) => {
     const testDoctor = doctorId!;
 
     const refs = await test.step('look up catalog records and dropdown options (read-only)', () =>
@@ -104,6 +104,15 @@ test.describe('Prescriptions - lifecycle @crud', () => {
     await test.step(`visit type chosen from the dropdown (${CREATE_CHOICE.visitType}) is saved`, async () => {
       expect(VISIT_TYPES).toContain(CREATE_CHOICE.visitType);
       expect(created.visitType).toBe(CREATE_CHOICE.visitType);
+    });
+
+    await test.step(`chief complaint chosen by the AI semantic search for "${refs.complaints[0].patientWords}" is saved`, async () => {
+      expect(created.chiefComplaints).toEqual([expect.objectContaining({
+        complaintId: refs.complaints[0].id,
+        term: refs.complaints[0].term,
+        aiSuggestedTerm: refs.complaints[0].aiSuggestedTerm,
+        isVerified: true,
+      })]);
     });
 
     await test.step('medicine 1 keeps its default dosage, medicine 2 has the dosage chosen from the dropdowns', async () => {

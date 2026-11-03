@@ -110,7 +110,8 @@ export const CREATE_CHOICE = { visitType: 'NEW' as VisitType, dosage: 3 };
 export const UPDATE_CHOICE = { visitType: 'FOLLOW_UP' as VisitType, dosage: 7 };
 
 interface CatalogDiagnosis { id: string; name: string; code?: string; codeType?: string }
-interface CatalogComplaint { id: string; term: string }
+/** Catalog complaint chosen through the AI semantic search for what the patient said. */
+interface CatalogComplaint { id: string; term: string; aiSuggestedTerm: string; patientWords: string }
 interface CatalogAdvice { id: string; descriptionEn: string }
 interface CatalogTest { testId: number; panelId: number; name: string; abbreviation?: string }
 
@@ -168,7 +169,8 @@ export const prescriptionPayload = (patientId: string, doctorId: string, refs: P
   diagnoses: [diagnosisItem(refs.diagnoses[0], 0)],
   chiefComplaints: [{
     complaintId: refs.complaints[0].id, term: refs.complaints[0].term, onset: 'Gradual', progression: 'Progressive', duration: '2 months',
-    aiSuggestedTerm: 'Polydipsia', isVerified: true, isCurrent: true, isPersonalized: false, remarks: 'Since last visit', sortOrder: 0,
+    aiSuggestedTerm: refs.complaints[0].aiSuggestedTerm, isVerified: true, isCurrent: true, isPersonalized: false,
+    remarks: `Patient said: "${refs.complaints[0].patientWords}"`, sortOrder: 0,
   }],
   medicines: [
     medicineWithDefaultDosage(refs.defaultDosageMedicine, refs.formulation, 0),
@@ -222,9 +224,10 @@ export const prescriptionFullUpdatePayload = (existing: any, refs: PrescriptionC
     diagnoses: [diagnosisItem(refs.diagnoses[0], 0, dx.id), diagnosisItem(refs.diagnoses[1], 1)],
     chiefComplaints: [
       { id: cc.id, complaintId: refs.complaints[0].id, term: refs.complaints[0].term, onset: 'Gradual', progression: 'Improving', duration: '3 months',
-        aiSuggestedTerm: 'Polydipsia', isVerified: true, isCurrent: false, isPersonalized: false, remarks: 'Better with treatment', sortOrder: 0 },
+        aiSuggestedTerm: refs.complaints[0].aiSuggestedTerm, isVerified: true, isCurrent: false, isPersonalized: false, remarks: 'Better with treatment', sortOrder: 0 },
       { complaintId: refs.complaints[1].id, term: refs.complaints[1].term, onset: 'Acute', progression: 'Static', duration: '2 days',
-        aiSuggestedTerm: '', isVerified: false, isCurrent: true, isPersonalized: false, remarks: 'Mild', sortOrder: 1 },
+        aiSuggestedTerm: refs.complaints[1].aiSuggestedTerm, isVerified: false, isCurrent: true, isPersonalized: false,
+        remarks: `Patient said: "${refs.complaints[1].patientWords}"`, sortOrder: 1 },
     ],
     medicines: [
       medicineWithDefaultDosage(refs.defaultDosageMedicine, refs.formulation, 0, medId(refs.defaultDosageMedicine)),

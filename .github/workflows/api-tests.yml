@@ -30,13 +30,14 @@ env:
   SWAGGER_FILE: swagger/prescription.json
   # Settings → Secrets and variables → Actions
   #   secrets:   AUTH_USERNAME, AUTH_PASSWORD
-  #   variables: DOCTOR_ID, PATIENT_ID, PRESCRIPTION_WRITES (optional)
+  #   variables: DOCTOR_ID, PATIENT_ID (required: every run creates a prescription), PRESCRIPTION_WRITES (optional)
   AUTH_USERNAME: ${{ secrets.AUTH_USERNAME }}
   AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
   DOCTOR_ID: ${{ vars.DOCTOR_ID }}
   PATIENT_ID: ${{ vars.PATIENT_ID }}
   # "true" runs the prescription lifecycle, which leaves one undeletable [AUTO] prescription per run.
-  PRESCRIPTION_WRITES: ${{ vars.PRESCRIPTION_WRITES || 'false' }}
+  # Every run creates one prescription; set the repo variable PRESCRIPTION_WRITES=false to turn it off.
+  PRESCRIPTION_WRITES: ${{ vars.PRESCRIPTION_WRITES || 'true' }}
 
 jobs:
   api-tests:
@@ -66,8 +67,14 @@ jobs:
             echo "::error::Missing repository secret(s):$missing. Add them in Settings → Secrets and variables → Actions → Secrets (Repository secrets)."
             exit 1
           fi
-          [ -z "$DOCTOR_ID" ] && echo "::warning::Variable DOCTOR_ID is not set; doctor tests will be skipped."
-          [ -z "$PATIENT_ID" ] && echo "::warning::Variable PATIENT_ID is not set; patient tests will be skipped."
+          if [ "$PRESCRIPTION_WRITES" != "false" ]; then
+            [ -z "$DOCTOR_ID" ] && missing="$missing DOCTOR_ID"
+            [ -z "$PATIENT_ID" ] && missing="$missing PATIENT_ID"
+            if [ -n "$missing" ]; then
+              echo "::error::Missing repository variable(s):$missing. Every run creates a prescription for them: add them in Settings → Secrets and variables → Actions → Variables."
+              exit 1
+            fi
+          fi
           echo "Credentials present."
 
       # Test records a previous run could not delete are retried by global setup.

@@ -11,8 +11,27 @@ const two = <T>(items: T[], what: string): [T, T] => {
   return [items[0], items[1]];
 };
 
+/** What the patient tells the doctor; the AI semantic search turns each into a catalog chief complaint. */
+export const PATIENT_WORDS = ['pain in the head', 'passing urine frequently at night'] as const;
+
+/**
+ * GET /ChiefComplaints/semantic-search (AI) with the patient's own words; the complaint is the first AI suggestion
+ * that is a catalog record (exact term). aiSuggestedTerm keeps the AI's top suggestion.
+ */
+async function complaintFromAi(api: ChiefComplaintsApi, patientWords: string) {
+  const suggestions = (await api.semanticSearch(patientWords)).expectStatus(200) as { conceptId: number; term: string }[];
+  expect(suggestions.length, `AI suggestions for "${patientWords}"`).toBeGreaterThan(0);
+  for (const s of suggestions) {
+    const match = real((await api.search(s.term)).expectStatus(200), c => c.term)
+      .find((c: any) => c.term.toLowerCase() === s.term.toLowerCase());
+    if (match) return { id: match.id, term: match.term, aiSuggestedTerm: suggestions[0].term, patientWords };
+  }
+  throw new Error(`No AI suggestion for "${patientWords}" is a catalog complaint: ${suggestions.map(s => s.term).join(', ')}`);
+}
+
 /**
  * Real catalog records and dosage dropdowns for a prescription (read-only lookups).
+ * Chief complaints are chosen with the AI semantic search (PATIENT_WORDS).
  * Medicines: four different solid (FC-01) medicines: default dosage, dropdown dosage, two drug histories.
  */
 export async function lookupPrescriptionRefs(api: {
@@ -20,7 +39,8 @@ export async function lookupPrescriptionRefs(api: {
   investigations: InvestigationsApi; medicines: MedicinesApi; formulationConfigs: MedicineFormulationConfigsApi;
 }): Promise<PrescriptionCatalogRefs> {
   const diagnoses = real((await api.diagnosis.search('diabetes')).expectStatus(200), d => d.name);
-  const complaints = real((await api.chiefComplaints.search('head')).expectStatus(200), c => c.term);
+  const complaints = [];
+  for (const words of PATIENT_WORDS) complaints.push(await complaintFromAi(api.chiefComplaints, words));
   const advices = real((await api.advices.search('avoid')).expectStatus(200), a => a.descriptionEn);
 
   const panel = (await api.investigations.getPanels({ pageSize: 1 })).expectStatus(200)[0];

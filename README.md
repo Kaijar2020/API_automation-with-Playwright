@@ -94,7 +94,7 @@ Configure in repo **Settings → Secrets and variables → Actions**:
 |---|---|---|
 | Secret | `AUTH_USERNAME`, `AUTH_PASSWORD` | Keycloak test user (required) |
 | Variable | `DOCTOR_ID`, `PATIENT_ID` | staging UUIDs; doctor/patient tests skip when unset |
-| Variable | `PRESCRIPTION_WRITES` | `true` runs the prescription lifecycle (leaves one undeletable `[AUTO]` prescription per run); default `false` |
+| Variable | `PRESCRIPTION_WRITES` | default `true`: every run creates one undeletable `[AUTO]` prescription (lifecycle); `false` turns it off |
 
 ## Structure
 ```
@@ -157,8 +157,8 @@ Each create -> read -> update -> delete flow is **one test with steps**, so a re
 Rules for new tests: create data only through the API classes (never raw `post()` for creates), and give every new create method a `cleanup`.
 
 Special cases:
-- **Prescriptions** have no single-prescription delete, so a created prescription stays in the database. Creating and updating one is still tested, kept to a minimum:
-  - opt-in: runs only with `PRESCRIPTION_WRITES=true` (otherwise `PrescriptionsApi.create` refuses real prescriptions);
+- **Prescriptions** have no single-prescription delete, so a created prescription stays in the database. Every run (local and CI) still creates one, kept to a minimum:
+  - on by default; `PRESCRIPTION_WRITES=false` turns it off (then `PrescriptionsApi.create` refuses real prescriptions);
   - exactly **one** prescription per run (one lifecycle test, retries off), for `DOCTOR_ID` / `PATIENT_ID`, notes starting with `[AUTO]`;
   - its id is listed under "Not deletable" in `reports/cleanup.md`, on the test (`not-deletable` tag) and by `npm run cleanup:sweep`, so the backend team can remove it.
 

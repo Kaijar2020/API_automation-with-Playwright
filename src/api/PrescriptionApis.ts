@@ -8,13 +8,13 @@ export class PrescriptionsApi extends ApiClient {
   /**
    * The API has no single-prescription delete, so every created prescription stays in the database.
    * (DELETE /Prescriptions/doctor/{doctorId}/hard-delete wipes ALL of a doctor's prescriptions: blocked in ApiClient, never used.)
-   * Real prescriptions are only sent when PRESCRIPTION_WRITES=true; each created id is reported (reports/cleanup.md)
+   * Real prescriptions are not sent when PRESCRIPTION_WRITES=false; each created id is reported (reports/cleanup.md)
    * so the backend team can remove it. When DELETE /Prescriptions/{id} exists, add it here as
    * `cleanup: this.deleteById('/Prescriptions/{id}')` and drop the recording.
    */
   async create(data: any) {
     if ((data?.patientId || data?.doctorId) && !env.prescriptionWrites) {
-      throw new Error('Refusing to create a prescription: it cannot be deleted. Set PRESCRIPTION_WRITES=true to allow it.');
+      throw new Error('Refusing to create a prescription: it cannot be deleted. PRESCRIPTION_WRITES=false is set.');
     }
     const res = await this.post('/Prescriptions', { data });
     if (res.status >= 200 && res.status < 300) {

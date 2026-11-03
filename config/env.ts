@@ -43,9 +43,9 @@ export const env = {
   },
   /**
    * The API has no single-prescription delete, so every prescription a test creates stays in the database.
-   * The prescription lifecycle (one prescription per run) runs only when this is explicitly true.
+   * Every run creates exactly one (the prescription lifecycle); PRESCRIPTION_WRITES=false turns it off.
    */
-  prescriptionWrites: process.env.PRESCRIPTION_WRITES === 'true',
+  prescriptionWrites: process.env.PRESCRIPTION_WRITES !== 'false',
   // Existing records used by read-only tests; tests needing them skip when unset.
   ids: {
     doctorId: optionalId('DOCTOR_ID'),
